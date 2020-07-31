@@ -1,6 +1,6 @@
 __pycache__/
 .ipynb_checkpoints/
 *.pickle
-new_model/
+new_model*
 *.json
 *.jpg
