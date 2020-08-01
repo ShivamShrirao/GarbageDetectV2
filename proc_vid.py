@@ -39,20 +39,6 @@ while cam.isOpened():
 	# pred[pred>=0.5] = 1
 	pred = (pred*255).astype(np.uint8)
 	mask = cv2.resize(pred, (IMG_WIDTH, IMG_HEIGHT))
-	# contours,_ = cv2.findContours(mask,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	# temp = oimg.copy()
-	# if len(contours) > 0:
-	#     c = max(contours,key=cv2.contourArea)
-	#     if cv2.contourArea(c)>100:
-	#         #Getting the bounding rectangle
-	#         x,y,w,h = cv2.boundingRect(c)
-	#         #Drawing the bounding rectangle
-	#         cv2.rectangle(temp,(x,y),(x+w,y+h),(0,255,0),2)
-	#         #Getting the moments
-	#         m = cv2.moments(c)
-	#         #moving mouse to the centroid
-	# # cv2.drawContours(temp,contours,-1,(255,0,0),2)
-	# cv2.imshow("output",temp)
 	# mult = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)#*img
 	# mult[:,:,0] = 0
 	# mult[:,:,2] = 0
@@ -60,6 +46,19 @@ while cam.isOpened():
 	heatmap_img = cv2.applyColorMap(mask, cv2.COLORMAP_INFERNO)
 	heated = cv2.addWeighted(heatmap_img, 0.6, oimg, 1, 0)
 	cv2.putText(heated, str(fps)[:5]+" FPS", (0, 15),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
+	contours,_ = cv2.findContours(mask,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	if len(contours) > 0:
+	    c = max(contours,key=cv2.contourArea)
+	    if cv2.contourArea(c)>100:
+	        #Getting the bounding rectangle
+	        x,y,w,h = cv2.boundingRect(c)
+	        #Drawing the bounding rectangle
+	        cv2.rectangle(heated,(x,y),(x+w,y+h),(0,255,0),2)
+	        #Getting the moments
+	        m = cv2.moments(c)
+	        #moving mouse to the centroid
+	# # cv2.drawContours(heated,contours,-1,(255,0,0),2)
+	# cv2.imshow("output",heated)
 	cv2.imshow("output", heated)
 	# cv2.imshow("output", np.concatenate((heated, heatmap_img), axis=1))
 	counter+=1
