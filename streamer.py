@@ -6,7 +6,7 @@ from time import sleep
 
 IP=sys.argv[1]
 PORT=int(sys.argv[2])
-fps = 40
+fps = 30
 tdiff = 1/fps
 
 handler = udp_handler()

@@ -47,7 +47,7 @@ def cloud_upload_image(image):
         return None
     
 
-def add_data(image,latitude,longitude):
+def add_data(image,latitude,longitude,cArea):
     link = cloud_upload_image(image)
     if link != None:
         key = '-'.join([''.join(str(latitude).split('.')) , ''.join(str(longitude).split('.'))])
@@ -62,13 +62,14 @@ def add_data(image,latitude,longitude):
             {
                 "Cleaned":"False",
                 "Notified": False,
-                "TimeStamp":date,
-                "image":link,
-                "Area":area,
-                "Pincode":pincode,
-                'latitude':latitude,
-                'longitude':longitude,
-                'collectorid':-1
+                "TimeStamp": date,
+                "image": link,
+                "Area": area,
+                "Pincode": pincode,
+                'latitude': latitude,
+                'longitude': longitude,
+                'collectorid': -1,
+                'contourArea': cArea,
             })
         return True
     else:

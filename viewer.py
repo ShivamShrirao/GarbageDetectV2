@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 from time import time
 from udp_streamer import *
-from firebase import *
 from threading import Thread
 
 IMG_HEIGHT = 320
@@ -13,7 +12,7 @@ handler = udp_handler()
 handler.make_listener('0.0.0.0',5555)
 
 tflite_path = 'new_model_0_75/my_model_fp32.tflite'
-tflite_path = 'new_model_0_75_-1to1/my_model_fp32_320x320.tflite'
+# tflite_path = 'new_model_0_75_-1to1/my_model_fp32_320x320.tflite'
 tflite_interpreter = tf.lite.Interpreter(model_path=tflite_path)
 tflite_interpreter.allocate_tensors()
 tflite_input_details = tflite_interpreter.get_input_details()
@@ -43,8 +42,6 @@ try:
 	img = cv2.imdecode(npimg, 1)
 except:
 	pass
-DET_COUNT=0
-threads=[]
 
 start = time()
 counter = 0
@@ -77,8 +74,8 @@ while True:
 	contours,_ = cv2.findContours(mask,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	if len(contours) > 0:
 		c = max(contours,key=cv2.contourArea)
-		if cv2.contourArea(c)>2000:
-			DET_COUNT+= 1
+		cArea = cv2.contourArea(c)
+		if cArea > 3000:
 			#Getting the bounding rectangle
 			# x,y,w,h = cv2.boundingRect(c)
 			#Drawing the bounding rectangle
@@ -102,14 +99,6 @@ while True:
 		counter = 0
 		start = time()
 	# writer.write(heated)
-	DET_COUNT+=1
-	if DET_COUNT>=240:
-		DET_COUNT=0
-		latitude,longitude = GenerateRandomCoordinates()
-		t1=Thread(target=add_data, args=(heated,latitude,longitude,))
-		t1.setDaemon(True)
-		t1.start()
-		print("[*] Uploading Image.")
 	key = cv2.waitKey(1) & 0xff
 	if key == ord('q'):
 		break
