@@ -25,7 +25,7 @@ while cam.isOpened():
 		ret,img = cam.read()
 		img = cv2.resize(img, (320, 320))
 		encoded, enimg = cv2.imencode('.jpg',img)
-		handler.send_data(enimg,IP,PORT)
+		handler.send_data(enimg.tobytes(),IP,PORT)
 	except KeyboardInterrupt:
 		cam.release()
 		cv2.destroyAllWindows()
