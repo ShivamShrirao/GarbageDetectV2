@@ -2,9 +2,15 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from time import time
+from udp_streamer import *
+from firebase import *
+from threading import Thread
 
 IMG_HEIGHT = 320
 IMG_WIDTH = 320
+
+handler = udp_handler()
+handler.make_listener('0.0.0.0',5555)
 
 tflite_path = 'new_model_0_75/my_model_fp32.tflite'
 tflite_path = 'new_model_0_75_-1to1/my_model_fp32_320x320.tflite'
@@ -13,23 +19,44 @@ tflite_interpreter.allocate_tensors()
 tflite_input_details = tflite_interpreter.get_input_details()
 tflite_output_details = tflite_interpreter.get_output_details()
 
-cam = cv2.VideoCapture('../garbage_detection/vid.mp4')
+# cam = cv2.VideoCapture('../garbage_detection/vid.mp4')
 fps = 40#round(cam.get(cv2.CAP_PROP_FPS))
 # writer = cv2.VideoWriter('segout_bb2.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps,(IMG_WIDTH,IMG_HEIGHT))
 
 cv2.namedWindow("output", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("output", 600,600)
 
+def get_img():
+	global handler,img
+	buffer = handler.get_data()
+	if buffer is not None:
+		try:
+			npimg = np.frombuffer(buffer, dtype=np.uint8)
+			img = cv2.imdecode(npimg, 1)
+		except Exception as e:
+			print(e)
+
+buffer = handler.get_data_small()
+img=prev_img=None
+try:
+	npimg = np.frombuffer(buffer, dtype=np.uint8)
+	img = cv2.imdecode(npimg, 1)
+except:
+	pass
+DET_COUNT=0
+threads=[]
+
 start = time()
 counter = 0
-while cam.isOpened():
-	ret, img = cam.read()
-	if not ret:
-		print("video finished.")
-		break
+while True:
+	get_img()
+	if id(img)==id(prev_img):
+		continue
+	if img is None:
+		continue
 	# img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
 	# img = np.ascontiguousarray(img)
-	oimg = cv2.resize(img, (IMG_HEIGHT, IMG_WIDTH))
+	oimg = cv2.resize(img, (IMG_HEIGHT, IMG_WIDTH)).astype(np.uint8)
 #     cv2.imshow("output",oimg)
 	img = cv2.cvtColor(oimg, cv2.COLOR_BGR2RGB).astype(np.float32)
 	img = img/127.5 - 1
@@ -50,7 +77,8 @@ while cam.isOpened():
 	contours,_ = cv2.findContours(mask,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	if len(contours) > 0:
 		c = max(contours,key=cv2.contourArea)
-		if cv2.contourArea(c)>100:
+		if cv2.contourArea(c)>2000:
+			DET_COUNT+= 1
 			#Getting the bounding rectangle
 			# x,y,w,h = cv2.boundingRect(c)
 			#Drawing the bounding rectangle
@@ -74,10 +102,18 @@ while cam.isOpened():
 		counter = 0
 		start = time()
 	# writer.write(heated)
+	DET_COUNT+=1
+	if DET_COUNT>=60:
+		DET_COUNT=0
+		latitude,longitude = GenerateRandomCoordinates()
+		# t1=Thread(target=add_data, args=(img,latitude,longitude))
+		# t1.setDaemon(True)
+		# t1.start()
+		print("[*] Uploading Image.")
 	key = cv2.waitKey(1) & 0xff
 	if key == ord('q'):
 		break
 
 cv2.destroyAllWindows()
-cam.release()
+# cam.release()
 # writer.release()
