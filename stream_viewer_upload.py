@@ -103,12 +103,12 @@ while True:
 		start = time()
 	# writer.write(heated)
 	DET_COUNT+=1
-	if DET_COUNT>=60:
+	if DET_COUNT>=240:
 		DET_COUNT=0
 		latitude,longitude = GenerateRandomCoordinates()
-		# t1=Thread(target=add_data, args=(img,latitude,longitude))
-		# t1.setDaemon(True)
-		# t1.start()
+		t1=Thread(target=add_data, args=(heated,latitude,longitude,))
+		t1.setDaemon(True)
+		t1.start()
 		print("[*] Uploading Image.")
 	key = cv2.waitKey(1) & 0xff
 	if key == ord('q'):

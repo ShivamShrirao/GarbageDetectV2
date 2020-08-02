@@ -2,9 +2,12 @@ import cv2
 import sys
 from udp_streamer import *
 from imutils.video import VideoStream
+from time import sleep
 
 IP=sys.argv[1]
 PORT=int(sys.argv[2])
+fps = 40
+tdiff = 1/fps
 
 handler = udp_handler()
 
@@ -29,6 +32,7 @@ while cam.isOpened():
 		break
 	except Exception as e:
 		pass
+	sleep(tdiff)
 
 cam.release()
 handler.close()

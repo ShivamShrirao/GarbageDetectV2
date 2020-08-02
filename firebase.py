@@ -7,6 +7,7 @@ from firebase_admin import db
 import googlemaps
 from time import time
 import numpy as np
+import cv2
 
 # Fetch the service account key JSON file contents
 try:
@@ -41,7 +42,7 @@ def cloud_upload_image(image):
             print("Image Uploaded")
         # Blob.upload_from_filename(filename=path)
         #returning the url
-        return 'gs://smart-waste-locator.appspot.com/'+imname
+        return 'https://firebasestorage.googleapis.com/v0/b/smart-waste-locator.appspot.com/o/'+imname+'?alt=media'
     except:
         return None
     
@@ -60,6 +61,7 @@ def add_data(image,latitude,longitude):
         child.set(
             {
                 "Cleaned":"False",
+                "Notified": False,
                 "TimeStamp":date,
                 "image":link,
                 "Area":area,
@@ -74,4 +76,11 @@ def add_data(image,latitude,longitude):
 
 def GenerateRandomCoordinates():
     #Generate Random Coordiantes in Pune
-    return [np.random.uniform(18.4311,18.5995), np.random.uniform(73.7469,73.9474)]
+    return [float("%1.4f"%(np.random.uniform(18.4311,18.5995))), float("%1.4f"%(np.random.uniform(73.7469,73.9474)))]
+
+
+if __name__ == "__main__":
+    image = "../../img_waste.jpg"
+    coords = GenerateRandomCoordinates()
+    print(coords)
+    print(add_data(image,coords[0],coords[1]))
