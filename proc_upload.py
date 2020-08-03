@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from time import time
 from firebase import *
+from waste_index_calculator import *
 from threading import Thread
 import matplotlib.pyplot as plt
 
@@ -101,6 +102,7 @@ while True:
 
 try:
 	t1.join()
+	add_indexes()
 except:
 	pass
 cv2.destroyAllWindows()
