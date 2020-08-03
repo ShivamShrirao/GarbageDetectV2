@@ -90,9 +90,9 @@ while True:
 		plt.show()
 		last_upload_t += time() - show_time
 		if (time() - last_upload_t) > 2:
-			# t1=Thread(target=add_data, args=(heated,latitude,longitude,cArea,))
-			# t1.setDaemon(True)
-			# t1.start()
+			t1=Thread(target=add_data, args=(heated,latitude,longitude,cArea,))
+			t1.setDaemon(True)
+			t1.start()
 			last_upload_t = time()
 			print("[*] Uploading Image.")
 	key = cv2.waitKey(1) & 0xff
