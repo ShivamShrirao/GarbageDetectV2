@@ -58,6 +58,10 @@ def add_data(image,latitude,longitude,cArea):
         result = gmaps_keys.reverse_geocode((latitude, longitude))
         area = result[0]['address_components'][0]['long_name']
         pincode = result[0]['address_components'][-1]['long_name']
+        try:
+            pincode = int(pincode)
+        except ValueError:
+            return False
         child.set(
             {
                 "Cleaned":"False",

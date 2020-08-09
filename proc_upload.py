@@ -85,10 +85,10 @@ while True:
 	if DET_COUNT>=7:
 		DET_COUNT=0
 		latitude,longitude = GenerateRandomCoordinates()
-		himg = cv2.cvtColor(heated, cv2.COLOR_BGR2RGB)
+		# himg = cv2.cvtColor(heated, cv2.COLOR_BGR2RGB)
 		show_time = time()
-		plt.imshow(himg)
-		plt.show()
+		# plt.imshow(himg)
+		# plt.show()
 		last_upload_t += time() - show_time
 		if (time() - last_upload_t) > 2:
 			t1=Thread(target=add_data, args=(heated,latitude,longitude,cArea,))
